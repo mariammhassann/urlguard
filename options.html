@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>URLGuard Settings</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #12112a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    .page { max-width: 620px; margin: 0 auto; padding: 40px 24px 60px; }
+
+    /* ── Page header ── */
+    .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+    .page-icon { font-size: 36px; }
+    .page-title { font-size: 24px; font-weight: 800; color: #a78bfa; letter-spacing: -0.3px; }
+    .page-sub { font-size: 13px; color: #4a5568; margin-top: 3px; }
+
+    /* ── Card ── */
+    .card {
+      background: #0c0b20;
+      border: 1px solid #1e1d3a;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3d4a5c;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 18px;
+    }
+
+    /* ── Field ── */
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #7c8fa0; margin-bottom: 7px; }
+    .input-wrap { position: relative; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: #12112a;
+      border: 1px solid #2a2850;
+      color: #e2e8f0;
+      padding: 10px 44px 10px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-family: 'Cascadia Code','SF Mono', monospace;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #4a5568;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px;
+      transition: color 0.15s;
+    }
+    .toggle-eye:hover { color: #a78bfa; }
+
+    .help {
+      font-size: 11px;
+      color: #334155;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .help a { color: #7c3aed; text-decoration: none; }
+    .help a:hover { text-decoration: underline; }
+
+    /* ── Toggle ── */
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; }
+    .toggle-info .tl { font-size: 14px; color: #e2e8f0; font-weight: 500; }
+    .toggle-info .td { font-size: 11px; color: #4a5568; margin-top: 3px; }
+
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .track {
+      position: absolute; inset: 0;
+      background: #1e1d3a; border-radius: 24px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .track::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: #4a5568;
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .switch input:checked + .track { background: rgba(167,139,250,0.25); }
+    .switch input:checked + .track::before { transform: translateX(20px); background: #a78bfa; }
+
+    /* ── Rate limit info ── */
+    .rate-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .rate-table th, .rate-table td {
+      text-align: left; padding: 6px 8px;
+      font-size: 12px; border-bottom: 1px solid #1e1d3a;
+    }
+    .rate-table th { color: #4a5568; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .rate-table td { color: #94a3b8; }
+    .rate-table td:last-child { color: #4ade80; }
+
+    /* ── Save button & toast ── */
+    .actions { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+    .btn-save {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: #fff;
+      border: none;
+      padding: 12px 34px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+    .btn-save:hover  { opacity: 0.88; }
+    .btn-save:active { transform: scale(0.97); }
+
+    .toast {
+      font-size: 13px;
+      color: #4ade80;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <span class="page-icon">🛡️</span>
+    <div>
+      <div class="page-title">URLGuard Settings</div>
+      <div class="page-sub">Configure API keys and scanning preferences</div>
+    </div>
+  </div>
+
+  <!-- VirusTotal -->
+  <div class="card">
+    <div class="card-title">🔬 VirusTotal API</div>
+    <div class="field">
+      <label for="vtKey">API Key</label>
+      <div class="input-wrap">
+        <input type="password" id="vtKey" placeholder="Paste your VirusTotal v3 API key…" autocomplete="off" spellcheck="false">
+        <button class="toggle-eye" data-target="vtKey" title="Show/hide">👁</button>
+      </div>
+      <div class="help">
+        Free account: 4 lookups/minute · 500/day.
+        Get your key at <a href="https://www.virustotal.com/gui/my-apikey" target="_blank">virustotal.com → My API Key</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Safe Browsing -->
+  <div class="card">
+    <div class="card-title">🛡️ Google Safe Browsing API</div>
+    <div class="field">
+      <label for="gsbKey">API Key</label>
+      <div class="input-wrap">
+        <input type="password" id="gsbKey" placeholder="Paste your Google Cloud API key…" autocomplete="off" spellcheck="false">
+        <button class="toggle-eye" data-target="gsbKey" title="Show/hide">👁</button>
+      </div>
+      <div class="help">
+        Free tier: 10,000 requests/day. Enable the Safe Browsing API in
+        <a href="https://console.cloud.google.com/apis/library/safebrowsing.googleapis.com" target="_blank">Google Cloud Console</a>,
+        then create an API key.
+      </div>
+    </div>
+  </div>
+
+  <!-- Preferences -->
+  <div class="card">
+    <div class="card-title">⚙️ Scan Preferences</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="tl">Auto-scan page links</div>
+        <div class="td">Automatically badge all links when you open a page (uses GSB batch first, rate-limited VT for flagged ones)</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autoScan" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- API rate limits reference -->
+  <div class="card">
+    <div class="card-title">📊 API Rate Limits Reference</div>
+    <table class="rate-table">
+      <thead><tr><th>Service</th><th>Limit</th><th>Tier</th></tr></thead>
+      <tbody>
+        <tr><td>VirusTotal</td><td>4 lookups / min · 500 / day</td><td>Free</td></tr>
+        <tr><td>Google Safe Browsing</td><td>10,000 requests / day</td><td>Free</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="actions">
+    <button class="btn-save" id="btnSave">Save Settings</button>
+    <span class="toast" id="toast">✅ Saved!</span>
+  </div>
+
+</div>
+<script src="options.js"></script>
+</body>
+</html>
